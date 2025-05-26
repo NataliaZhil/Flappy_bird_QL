@@ -14,11 +14,6 @@ import statistics
 import random
 
 
-clock = pygame.time.Clock()
-pygame.init()
-pygame.font.init()
-
-
 WIDTH = 480
 HIGTH = 640
 BIRD_X = 185
@@ -37,16 +32,20 @@ ROTATION_SPEED = 1
 JUMP = 90
 SPEED_UP = 0.1
 SPEED_BIRD = 2.05
-
 DEVICE = "cuda:0"
 BATCH_SIZE = 32
 DELTA = 5
 GAP_COL = 150
 
+clock = pygame.time.Clock()
+pygame.init()
+pygame.font.init()
+
 
 class Bird:
     """
     Create the bird
+
     """
 
     def __init__(self):
@@ -109,7 +108,14 @@ class Bird:
             dict_el["a"], dict_el["b"] = dict_el["b"], dict_el["a"]
         return dict_el
 
-    def update(self, window):
+    def update(self, window: pygame.surface.Surface) -> None:
+        """
+        Update condition of the bird
+
+        Args:
+            window: screen of the game
+
+        """
         window.blit(
             pygame.transform.rotate(
                 self.bird[self.bird_animation], self.rotation
@@ -123,7 +129,14 @@ class Bird:
             self.y += GRAVITY * self.speed
             self.rotation = max(self.rotation - ROTATION_SPEED, -90)
 
-    def speed_up(self, score):
+    def speed_up(self, score: int) -> None:
+        """
+        Spped up falling the bird
+
+        Args:
+            score: score of the game
+
+        """
         self.speed = min(SPEED_BIRD + SPEED_UP * score, 14)
 
 
@@ -278,8 +291,8 @@ class Ground:
 
 class Background:
     """
-    Create a background,
-    update condition with function update
+    Create the background.
+
     """
 
     def __init__(self):
@@ -288,10 +301,17 @@ class Background:
         ).convert()
 
     def update(self, window: pygame.surface.Surface) -> None:
+        """
+        Update background
+
+        Args:
+            window : screen of the game
+
+        """
         window.blit(self.bg_upper_part, COOR_BACKG)
 
 
-def restart():
+def restart() -> None:
     """
     Start new game
 
@@ -376,7 +396,6 @@ def state_func(
         state : tuple of bools values of the system.
 
     """
-
     y_tube = tube_y2 if tube_x <= 100 else tube_y1
     state = (
         int(bird_y > y_tube - BIRD_SIZE[1] - GRAVITY * speed - DELTA),
@@ -387,7 +406,7 @@ def state_func(
     return state
 
 
-def training(epochs: int = 1000, learning: bool = False):
+def training(epochs: int = 1000, learning: bool = False) -> None:
     """
     Creating and record parametes of the agent
 
@@ -430,7 +449,6 @@ def training(epochs: int = 1000, learning: bool = False):
         af.plot_seaborn(counter_plot, score_plot)
     mean, stdev = statistics.mean(score_plot), statistics.stdev(score_plot)
     np.save("weights_exper_ql.npy", agent_fb.Q)
-    return total_score, mean, stdev
 
 
 if __name__ == "__main__":
